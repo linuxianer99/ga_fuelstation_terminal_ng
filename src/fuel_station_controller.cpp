@@ -6,8 +6,9 @@ void FuelStationController::begin() {
   display_.begin();
   nfc_.begin();
   relay_.begin(PIN_RELAY);
-  flowMeter_.begin(PIN_FLOW_METER);
-  backend_.begin();
+  configuration_.begin();
+  flowMeter_.begin(PIN_FLOW_METER, configuration_.values().pulsesPerLitre);
+  backend_.begin(configuration_.values(), configuration_.isFilesystemReady());
   backend_.connectWiFi();
   backend_.flushPendingSessions();
   state_ = StationState::Idle;

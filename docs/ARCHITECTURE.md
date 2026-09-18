@@ -11,6 +11,7 @@ The application consists of:
 - `PumpRelay` for switching the pump
 - `FlowMeter` for pulse counting and liter calculation
 - `DisplayController` for the 16x2 I2C display
+- `Configuration` for LittleFS mounting and JSON configuration loading
 - `BackendClient` for WiFi and HTTPS/JSON communication
 
 The Arduino entry point in `src/main.cpp` calls `FuelStationController::begin()` once and `FuelStationController::update()` in a loop.
@@ -95,11 +96,11 @@ Encapsulates the pulse input of the flow meter.
 - `begin(pin)` configures the input with `INPUT_PULLUP`, resets the counter, and registers an interrupt on the rising edge.
 - `reset()` resets the pulse counter while interrupts are disabled.
 - `getPulseCount()` returns the number of pulses.
-- `getLiters()` calculates `pulseCount * LITERS_PER_PULSE`.
+- `getLiters()` calculates `pulseCount / pulse_per_litre`.
 
 The interrupt callback increments `pulseCount_`. The counter is declared `volatile` because it is accessed both by the interrupt and by normal application code.
 
-Important: `LITERS_PER_PULSE` is currently set to `100.0f`. Therefore, one pulse represents 100 liters. This matches a meter that generates one pulse per 100 liters.
+The `pulse_per_litre` value is loaded from `config.json`. For example, a value of `90` means that 90 pulses represent one liter.
 
 ### 3.5 `DisplayController`
 
@@ -142,6 +143,18 @@ The JSON fields are:
 
 The TLS client currently uses `setInsecure()`. The connection is encrypted, but the server certificate is not verified. Production deployments should use a root certificate or another certificate validation method.
 
+### 3.7 `Configuration`
+
+Files: `include/configuration.h`, `src/configuration.cpp`
+
+Owns application configuration loading independently of the backend implementation.
+
+- `begin()` mounts LittleFS and loads `/config.json`.
+- `values()` returns the parsed `RuntimeConfig` values.
+- `isFilesystemReady()` reports whether LittleFS is available for the offline queue.
+
+If the file is missing or invalid, the class keeps the compile-time defaults from `config.h`. `FuelStationController` initializes this class before passing its values to `BackendClient`.
+
 ## 4. Shared Data Models and Configuration
 
 File: `include/config.h`
@@ -157,7 +170,7 @@ File: `include/config.h`
 | PN532 MOSI | `PIN_PN532_MOSI` | 37 |
 | PN532 SS | `PIN_PN532_SS` | 7 |
 | LCD address | `LCD_ADDRESS` | `0x27` |
-| Conversion factor | `LITERS_PER_PULSE` | `100.0` |
+| Pulse conversion | `pulse_per_litre` in `config.json` | `90` |
 
 ### `SessionData`
 
@@ -285,7 +298,36 @@ The project uses the native Arduino framework in PlatformIO. The framework there
 
 ## 9. Configuration Notes
 
-The placeholders in `config.h` must be replaced before testing against a real backend:
+Runtime connection settings are loaded from `data/config.json` and uploaded to the ESP32 LittleFS partition with:
+
+```text
+pio run --target uploadfs --environment FuelStationHardware_DEBUG
+```
+
+The JSON file has the following structure:
+
+```json
+{
+    "wifi_ssid": "YOUR_WIFI_SSID",
+    "wifi_password": "YOUR_WIFI_PASSWORD",
+    "api_host": "api.example.com",
+    "api_port": 443,
+    "api_path": "/api/fuel-session",
+    "tls_insecure": true
+}
+```
+
+The fields have these meanings:
+
+- `wifi_ssid`: WiFi network name.
+- `wifi_password`: WiFi password.
+- `api_host`: HTTPS backend hostname without a protocol prefix.
+- `api_port`: HTTPS backend port, normally `443`.
+- `api_path`: HTTP request path for the session endpoint.
+- `tls_insecure`: when `true`, TLS encryption is used without validating the server certificate.
+- `pulse_per_litre`: number of flow-meter pulses representing one liter.
+
+If `config.json` is missing or invalid, the firmware falls back to the compile-time defaults in `config.h`:
 
 - `WIFI_SSID`
 - `WIFI_PASSWORD`

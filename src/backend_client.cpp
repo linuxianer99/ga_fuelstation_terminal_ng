@@ -1,21 +1,18 @@
 #include "backend_client.h"
 
+#include <ArduinoJson.h>
 #include <LittleFS.h>
 
 namespace fuelstation {
 
-void BackendClient::begin() {
-  if (!LittleFS.begin(true)) {
-    Serial.println("LittleFS Initialisierung fehlgeschlagen");
-    return;
-  }
-
-  Serial.println("LittleFS initialisiert");
+void BackendClient::begin(const RuntimeConfig& config, bool filesystemReady) {
+  config_ = config;
+  filesystemReady_ = filesystemReady;
 }
 
 bool BackendClient::connectWiFi() {
   WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFi.begin(config_.wifiSsid.c_str(), config_.wifiPassword.c_str());
 
   Serial.print("Verbinde mit WiFi");
   for (uint8_t i = 0; i < 20 && WiFi.status() != WL_CONNECTED; ++i) {
@@ -43,6 +40,10 @@ bool BackendClient::sendSession(const SessionData& session) {
 }
 
 bool BackendClient::queueSession(const SessionData& session) {
+  if (!filesystemReady_) {
+    return false;
+  }
+
   File file = LittleFS.open(nextQueuePath(), FILE_WRITE);
   if (!file) {
     Serial.println("Offline-Session konnte nicht gespeichert werden");
@@ -63,7 +64,7 @@ bool BackendClient::queueSession(const SessionData& session) {
 }
 
 void BackendClient::flushPendingSessions() {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (!filesystemReady_ || WiFi.status() != WL_CONNECTED) {
     return;
   }
 
@@ -130,18 +131,20 @@ bool BackendClient::sendPayload(const String& payload) {
   }
 
   WiFiClientSecure client;
-  client.setInsecure();
+  if (config_.tlsInsecure) {
+    client.setInsecure();
+  }
 
-  if (!client.connect(API_HOST, 443)) {
+  if (!client.connect(config_.apiHost.c_str(), config_.apiPort)) {
     Serial.println("HTTPS Verbindung fehlgeschlagen");
     return false;
   }
 
   client.print("POST ");
-  client.print(API_PATH);
+  client.print(config_.apiPath);
   client.print(" HTTP/1.1\r\n");
   client.print("Host: ");
-  client.print(API_HOST);
+  client.print(config_.apiHost);
   client.print("\r\n");
   client.print("Content-Type: application/json\r\n");
   client.print("Content-Length: ");

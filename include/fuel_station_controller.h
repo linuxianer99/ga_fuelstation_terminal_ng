@@ -2,6 +2,7 @@
 
 #include "backend_client.h"
 #include "config.h"
+#include "configuration.h"
 #include "display_controller.h"
 #include "flow_meter.h"
 #include "nfc_reader.h"
@@ -22,6 +23,7 @@ class FuelStationController {
   NfcReader nfc_;
   PumpRelay relay_;
   FlowMeter flowMeter_;
+  Configuration configuration_;
   BackendClient backend_;
   StationState state_ = StationState::Idle;
   SessionData session_;

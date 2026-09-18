@@ -11,12 +11,22 @@ constexpr uint8_t PIN_PN532_MISO = 35;
 constexpr uint8_t PIN_PN532_MOSI = 37;
 constexpr uint8_t PIN_PN532_SS = 7;
 constexpr uint8_t LCD_ADDRESS = 0x27;
-constexpr float LITERS_PER_PULSE = 100.0f;
+constexpr float DEFAULT_PULSES_PER_LITRE = 90.0f;
 
 constexpr char WIFI_SSID[] = "YOUR_WIFI_SSID";
 constexpr char WIFI_PASSWORD[] = "YOUR_WIFI_PASSWORD";
 constexpr char API_HOST[] = "api.example.com";
 constexpr char API_PATH[] = "/api/fuel-session";
+
+struct RuntimeConfig {
+  String wifiSsid = WIFI_SSID;
+  String wifiPassword = WIFI_PASSWORD;
+  String apiHost = API_HOST;
+  String apiPath = API_PATH;
+  uint16_t apiPort = 443;
+  bool tlsInsecure = true;
+  float pulsesPerLitre = DEFAULT_PULSES_PER_LITRE;
+};
 
 struct SessionData {
   String cardUid;

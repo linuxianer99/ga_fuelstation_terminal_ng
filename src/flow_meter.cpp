@@ -2,8 +2,11 @@
 
 namespace fuelstation {
 
-void FlowMeter::begin(uint8_t pin) {
+void FlowMeter::begin(uint8_t pin, float pulsesPerLitre) {
   pin_ = pin;
+  if (pulsesPerLitre > 0.0f) {
+    pulsesPerLitre_ = pulsesPerLitre;
+  }
   pinMode(pin_, INPUT_PULLUP);
   pulseCount_ = 0;
   attachInterruptArg(digitalPinToInterrupt(pin_), &FlowMeter::onPulseStatic, this, RISING);
@@ -20,7 +23,7 @@ uint32_t FlowMeter::getPulseCount() const {
 }
 
 float FlowMeter::getLiters() const {
-  return static_cast<float>(pulseCount_) * LITERS_PER_PULSE;
+  return static_cast<float>(pulseCount_) / pulsesPerLitre_;
 }
 
 void IRAM_ATTR FlowMeter::onPulseStatic(void* instance) {

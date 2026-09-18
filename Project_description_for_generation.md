@@ -13,3 +13,23 @@ Wird eine NFC Karte mit gelesen, soll auf dem Display eine Meldung ausgegeben we
 
 Offline-Mode:
 Wenn nach einer Tankung das Backend oder das WLAN nicht verfügbar ist, speichere die Tankung lokal im Filesystem des ESP32 ab. Wenn Backund und WLAN wieder verfügbar sind, sende alle gespeicherten Tankungen zum Backend
+
+Konfiguration:
+Die Konfiguration des Tankstellen Terminals soll über eine JSON Datei erfolgen.
+Die JSON Datei soll auch mit im Filesystem des ESP32 abgelegt werden. Die JSON Datei soll folgende Parameter haben: 
+
+{
+    "ssid": "<SSID here>",
+    "wifipassword": "<WIFI key HERE>",
+    "buzzerintensity": 20,
+    "fuelsort": "<FuelSORT of Pump>",
+    "billingserver": "<BILLING Server URL>",
+    "terminal_id": "<PUMPID>"
+    "pump_timeout": 5000
+    "httpuser":"admin",
+    "httppassword":"admin",
+    "heartbeat":10000,
+    "calibration":91
+}
+
+Ist beim ersten Start keine JSON Datei vorhanden, sollen Default werden geladen werden und die JSON Datei angelegt werden.

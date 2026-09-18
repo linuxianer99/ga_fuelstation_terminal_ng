@@ -1,0 +1,9 @@
+{
+  "wifi_ssid": "YOUR_WIFI_SSID",
+  "wifi_password": "YOUR_WIFI_PASSWORD",
+  "api_host": "api.example.com",
+  "api_port": 443,
+  "api_path": "/api/fuel-session",
+  "tls_insecure": true,
+  "pulse_per_litre": 90
+}
