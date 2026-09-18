@@ -11,3 +11,5 @@ An den ESP32-S3 sind folgende Komponenten angeschlossen:
 Verhalten:
 Wird eine NFC Karte mit gelesen, soll auf dem Display eine Meldung ausgegeben werden und die Tankstellenpumpe eingeschaltet werden. Dann werden die Impulse des Impulszählers gezählt. Wird wieder eine NFC Karte erkannt, soll das Relais ausgeschaltet werden und eine JSON Payload für das Backend gesendet werden.
 
+Offline-Mode:
+Wenn nach einer Tankung das Backend oder das WLAN nicht verfügbar ist, speichere die Tankung lokal im Filesystem des ESP32 ab. Wenn Backund und WLAN wieder verfügbar sind, sende alle gespeicherten Tankungen zum Backend

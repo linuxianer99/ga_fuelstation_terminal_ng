@@ -25,6 +25,7 @@ class FuelStationController {
   BackendClient backend_;
   StationState state_ = StationState::Idle;
   SessionData session_;
+  uint32_t nextOfflineRetryAt_ = 0;
 };
 
 }  // namespace fuelstation

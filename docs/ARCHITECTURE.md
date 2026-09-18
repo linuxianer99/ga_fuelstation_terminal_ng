@@ -2,7 +2,7 @@
 
 ## 1. Purpose and System Overview
 
-The firmware controls an ESP32-S3 terminal for a fuel station pump. An NFC card starts or ends a fueling session. While the pump is running, a pulse meter counts the dispensed amount. After the pump stops, the session data is sent to a backend as JSON over HTTPS.
+The firmware controls an ESP32-S3 terminal for a fuel station pump. An NFC card starts or ends a fueling session. While the pump is running, a pulse meter counts the dispensed amount. After the pump stops, the session data is sent to a backend as JSON over HTTPS. If the network or backend is unavailable, the session is stored in the ESP32 LittleFS filesystem and retried later.
 
 The application consists of:
 
@@ -123,6 +123,9 @@ Encapsulates the WiFi connection and HTTPS request.
 
 - `connectWiFi()` sets station mode, starts the connection, and waits up to 20 times 500 ms for `WL_CONNECTED`.
 - `sendSession(session)` opens a `WiFiClientSecure` connection to port 443 and sends a manual HTTP POST with a JSON payload.
+- `begin()` mounts LittleFS and enables the persistent offline queue.
+- `queueSession(session)` stores a session as a JSON file under `/offline_*.json`.
+- `flushPendingSessions()` sends queued files and deletes each file only after a successful 2xx HTTP response.
 
 The JSON fields are:
 
@@ -240,6 +243,10 @@ On every `update()` iteration:
 - `sendSession()` does not currently validate the HTTP status code. A successful TCP/TLS connection is effectively treated as a successful send.
 - The card detected while stopping is accepted without comparing it to the card used to start the session.
 - If the PN532 fails during `begin()`, the system remains stopped in the error loop.
+- If WiFi or the backend is unavailable after a fueling session, the completed session is written to LittleFS before the controller returns to `Idle`.
+- Pending sessions are retried during startup, after a successful live upload, and periodically every 30 seconds while the station is idle.
+- A queued session is deleted only after the backend returns an HTTP 2xx response. Failed uploads remain on the filesystem for a later retry.
+- LittleFS is mounted with automatic formatting enabled. If the filesystem cannot be mounted, existing offline data may be lost when it is reformatted.
 
 ## 7. Initialization and Data Flow
 
