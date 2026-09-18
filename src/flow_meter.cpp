@@ -6,7 +6,7 @@ void FlowMeter::begin(uint8_t pin) {
   pin_ = pin;
   pinMode(pin_, INPUT_PULLUP);
   pulseCount_ = 0;
-  attachInterruptArg(digitalPinToInterrupt(pin_), &FlowMeter::onPulseStatic, this);
+  attachInterruptArg(digitalPinToInterrupt(pin_), &FlowMeter::onPulseStatic, this, RISING);
 }
 
 void FlowMeter::reset() {

@@ -27,7 +27,7 @@ void DisplayController::showAccepted(const String& uid) {
   lcd_.setCursor(0, 0);
   lcd_.print("Karte erkannt");
   lcd_.setCursor(0, 1);
-  lcd_.print(uid.substring(0, min(16, uid.length())));
+  lcd_.print(uid.substring(0, uid.length() < 16u ? uid.length() : 16u));
 }
 
 void DisplayController::showPumpRunning(float liters) {
