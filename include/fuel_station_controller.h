@@ -1,6 +1,7 @@
 #pragma once
 
 #include "backend_client.h"
+#include "buzzer.h"
 #include "config.h"
 #include "configuration.h"
 #include "display_controller.h"
@@ -20,6 +21,7 @@ class FuelStationController {
   void endSession(const String& cardUid);
 
   DisplayController display_;
+  Buzzer buzzer_;
   NfcReader nfc_;
   PumpRelay relay_;
   FlowMeter flowMeter_;

@@ -33,3 +33,12 @@ Die JSON Datei soll auch mit im Filesystem des ESP32 abgelegt werden. Die JSON D
 }
 
 Ist beim ersten Start keine JSON Datei vorhanden, sollen Default werden geladen werden und die JSON Datei angelegt werden.
+
+Buzzer:
+Ein Buzzer soll mit einem PWM Ausgang des ESP32 angeschlossen sein.
+
+BUZZER_PIN 4
+BUZZER_FREQ 2000
+BUZZER_LEN 500
+
+Der Buzzer soll einen Ton ausgeben, wenn eine gültige NFC Karte erkannt wird.

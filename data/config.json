@@ -5,5 +5,6 @@
   "api_port": 443,
   "api_path": "/api/fuel-session",
   "tls_insecure": true,
-  "pulse_per_litre": 90
+  "pulse_per_litre": 90,
+  "buzzerintensity": 20
 }

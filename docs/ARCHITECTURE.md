@@ -7,6 +7,7 @@ The firmware controls an ESP32-S3 terminal for a fuel station pump. An NFC card 
 The application consists of:
 
 - `FuelStationController` as the central application controller
+- `Buzzer` for acoustic feedback after a valid NFC card read
 - `NfcReader` for card detection
 - `PumpRelay` for switching the pump
 - `FlowMeter` for pulse counting and liter calculation
@@ -22,6 +23,7 @@ The Arduino entry point in `src/main.cpp` calls `FuelStationController::begin()`
 flowchart LR
     Main[setup / loop] --> Controller[FuelStationController]
     Controller --> NFC[NfcReader]
+    Controller --> Buzzer[Buzzer]
     Controller --> Relay[PumpRelay]
     Controller --> Meter[FlowMeter]
     Controller --> Display[DisplayController]
@@ -60,6 +62,7 @@ The central application class. It owns all subsystems and manages the current st
 - `nfc_`: NFC reader
 - `relay_`: pump relay
 - `flowMeter_`: pulse meter
+- `buzzer_`: acoustic NFC feedback
 - `backend_`: WiFi/HTTPS client
 - `state_`: current `StationState`
 - `session_`: current `SessionData`
@@ -75,7 +78,20 @@ Encapsulates the PN532 over SPI. The pins are taken from `config.h`.
 
 If the PN532 is not found during startup, the method prints an error and remains in an infinite wait loop. The controller cannot continue in that situation.
 
-### 3.3 `PumpRelay`
+### 3.3 `Buzzer`
+
+Files: `include/buzzer.h`, `src/buzzer.cpp`
+
+Controls the acoustic feedback output using the ESP32 LEDC PWM peripheral.
+
+- `begin()` configures the LEDC channel, frequency, resolution, and buzzer pin.
+- `beep()` uses `ledcWrite()` to enable the configured duty cycle for `BUZZER_LEN` milliseconds and then switches the output off.
+
+The controller calls `beep()` whenever `NfcReader::readCardId()` successfully detects a card. This applies to both starting and stopping a fueling session.
+
+The requested buzzer pin is currently `4`, which is also configured as `PIN_FLOW_METER`. These signals must use different physical GPIOs in the hardware wiring; otherwise the buzzer and flow-meter interrupt cannot operate reliably at the same time.
+
+### 3.4 `PumpRelay`
 
 Files: `include/pump_relay.h`, `src/pump_relay.cpp`
 
@@ -87,7 +103,7 @@ Encapsulates the digital relay output.
 
 The current implementation uses active-high logic: `true` maps to `HIGH` and therefore switches the pump on.
 
-### 3.4 `FlowMeter`
+### 3.5 `FlowMeter`
 
 Files: `include/flow_meter.h`, `src/flow_meter.cpp`
 
@@ -102,7 +118,7 @@ The interrupt callback increments `pulseCount_`. The counter is declared `volati
 
 The `pulse_per_litre` value is loaded from `config.json`. For example, a value of `90` means that 90 pulses represent one liter.
 
-### 3.5 `DisplayController`
+### 3.6 `DisplayController`
 
 Files: `include/display_controller.h`, `src/display_controller.cpp`
 
@@ -116,7 +132,7 @@ Encapsulates the 16x2 LCD over I2C.
 
 The display is rewritten on every `update()` iteration while the state is `PumpRunning`.
 
-### 3.6 `BackendClient`
+### 3.7 `BackendClient`
 
 Files: `include/backend_client.h`, `src/backend_client.cpp`
 
@@ -124,7 +140,7 @@ Encapsulates the WiFi connection and HTTPS request.
 
 - `connectWiFi()` sets station mode, starts the connection, and waits up to 20 times 500 ms for `WL_CONNECTED`.
 - `sendSession(session)` opens a `WiFiClientSecure` connection to port 443 and sends a manual HTTP POST with a JSON payload.
-- `begin()` mounts LittleFS and enables the persistent offline queue.
+- `begin(config, filesystemReady)` receives the loaded configuration and filesystem status.
 - `queueSession(session)` stores a session as a JSON file under `/offline_*.json`.
 - `flushPendingSessions()` sends queued files and deletes each file only after a successful 2xx HTTP response.
 
@@ -143,7 +159,7 @@ The JSON fields are:
 
 The TLS client currently uses `setInsecure()`. The connection is encrypted, but the server certificate is not verified. Production deployments should use a root certificate or another certificate validation method.
 
-### 3.7 `Configuration`
+### 3.8 `Configuration`
 
 Files: `include/configuration.h`, `src/configuration.cpp`
 
@@ -171,6 +187,9 @@ File: `include/config.h`
 | PN532 SS | `PIN_PN532_SS` | 7 |
 | LCD address | `LCD_ADDRESS` | `0x27` |
 | Pulse conversion | `pulse_per_litre` in `config.json` | `90` |
+| Buzzer | `BUZZER_PIN` | 4 |
+| Buzzer frequency | `BUZZER_FREQ` | 2000 Hz |
+| Buzzer duration | `BUZZER_LEN` | 500 ms |
 
 ### `SessionData`
 
@@ -207,6 +226,7 @@ stateDiagram-v2
 1. `NfcReader::readCardId()` is called periodically.
 2. Without a card, the state remains unchanged.
 3. When a card is detected, the controller calls `beginSession()`.
+4. The controller emits one buzzer tone for the valid card detection.
 
 ### Transition `Idle -> PumpRunning`
 
@@ -226,9 +246,10 @@ stateDiagram-v2
 On every `update()` iteration:
 
 1. Check for a new NFC card.
-2. If no card is detected, read the current pulse count.
-3. Calculate the current liters.
-4. Call `showPumpRunning()` with the current value.
+2. Emit one buzzer tone when a card is detected.
+3. If no card is detected, read the current pulse count.
+4. Calculate the current liters.
+5. Call `showPumpRunning()` with the current value.
 
 ### Transition `PumpRunning -> Idle`
 
@@ -326,6 +347,7 @@ The fields have these meanings:
 - `api_path`: HTTP request path for the session endpoint.
 - `tls_insecure`: when `true`, TLS encryption is used without validating the server certificate.
 - `pulse_per_litre`: number of flow-meter pulses representing one liter.
+- `buzzerintensity`: PWM duty cycle for the buzzer in the range `0..255`; the default is `20`.
 
 If `config.json` is missing or invalid, the firmware falls back to the compile-time defaults in `config.h`:
 

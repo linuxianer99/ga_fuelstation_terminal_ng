@@ -7,6 +7,7 @@ void FuelStationController::begin() {
   nfc_.begin();
   relay_.begin(PIN_RELAY);
   configuration_.begin();
+  buzzer_.begin(configuration_.values().buzzerIntensity);
   flowMeter_.begin(PIN_FLOW_METER, configuration_.values().pulsesPerLitre);
   backend_.begin(configuration_.values(), configuration_.isFilesystemReady());
   backend_.connectWiFi();
@@ -19,6 +20,7 @@ void FuelStationController::begin() {
 void FuelStationController::update() {
   String detectedCard;
   if (nfc_.readCardId(detectedCard)) {
+    buzzer_.beep();
     if (state_ == StationState::Idle) {
       beginSession(detectedCard);
     } else {

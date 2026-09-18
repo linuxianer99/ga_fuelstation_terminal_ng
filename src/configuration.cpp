@@ -63,6 +63,12 @@ bool Configuration::loadJson() {
   if (pulsesPerLitre > 0.0f) {
     values_.pulsesPerLitre = pulsesPerLitre;
   }
+  if (doc["buzzerintensity"].is<uint16_t>()) {
+    const uint16_t buzzerIntensity = doc["buzzerintensity"].as<uint16_t>();
+    if (buzzerIntensity <= 255) {
+      values_.buzzerIntensity = static_cast<uint8_t>(buzzerIntensity);
+    }
+  }
 
   Serial.println("config.json geladen");
   return true;
