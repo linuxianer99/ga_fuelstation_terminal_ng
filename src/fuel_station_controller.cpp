@@ -31,13 +31,17 @@ const SessionData& FuelStationController::session() const {
 void FuelStationController::update() {
   webServer_.update();
   statusLed_.update(state_);
-  String detectedCard;
-  if (nfc_.readCardId(detectedCard)) {
+  RfidCardData detectedCard;
+  if (nfc_.readCard(detectedCard)) {
     buzzer_.beep();
     if (state_ == StationState::Idle) {
-      beginSession(detectedCard);
+      beginSession(detectedCard.uid);
+      session_.aircraft = detectedCard.aircraft;
+      session_.article = configuration_.values().fuelSort + detectedCard.articleSuffix;
+      session_.memberId = detectedCard.memberId;
+      session_.storedCardHash = detectedCard.storedHash;
     } else {
-      endSession(detectedCard);
+      endSession(detectedCard.uid);
     }
   }
 

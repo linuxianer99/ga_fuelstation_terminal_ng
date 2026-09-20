@@ -75,7 +75,8 @@ Files: `include/nfc_reader.h`, `src/nfc_reader.cpp`
 Encapsulates the PN532 over SPI. The pins are taken from `config.h`.
 
 - `begin()` starts the PN532, checks its firmware, and enables card reading.
-- `readCardId(cardUid)` waits up to one second for an ISO14443 card. On success, it returns the UID as an uppercase hexadecimal string.
+- `readCard(card)` waits up to one second for an ISO14443 card, authenticates MIFARE Classic sectors with Key A, and reads the structured card data. It returns the UID, Aircraft/registration from block 1, article suffix from block 2, member ID from block 4, and the raw hash/additional data from blocks 8 and 9 as uppercase hexadecimal.
+- Text blocks must contain a null terminator within their 16-byte MIFARE block and must not be empty. Authentication or block-read errors reject the card.
 
 If the PN532 is not found during startup, the method prints an error and remains in an infinite wait loop. The controller cannot continue in that situation.
 

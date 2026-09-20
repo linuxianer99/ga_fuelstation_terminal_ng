@@ -80,3 +80,16 @@ Pinbelegung:
 
 Status LED:
 Die Status LED soll im IDLE Zustand zwischen hell und dunkel wechseln. Der Wechsel soll langsam passieren (2 Sekunden).
+
+RFID-Kartenformat
+
+Der Code erwartet eine MIFARE-1K-Karte und authentifiziert mit Key A. Die relevanten Bloecke sind:
+
+| Block | Inhalt | Maximale Nutzlaenge im Code |
+| ---: | --- | ---: |
+| 1 | Aircraft/Registrierung | 17 Zeichen plus Nullterminierung |
+| 2 | Artikel-Suffix | 17 Zeichen plus Nullterminierung |
+| 4 | Member-ID | 17 Zeichen im Lesevorgang; Zielpuffer ist kleiner |
+| 8 und 9 | Hash-/Zusatzdaten | je 16 Nutzbytes werden uebernommen |
+
+Die finale Artikelbezeichnung wird aus `fuelsort + suffix` gebildet. Der gespeicherte Hash wird derzeit gelesen und geloggt, aber nicht gegen einen berechneten Wert validiert. Die Karte muss deshalb mit den erwarteten Nullterminierungen beschrieben sein, da der Code die gelesenen Daten als C-Strings behandelt.

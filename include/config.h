@@ -56,6 +56,10 @@ struct RuntimeConfig {
 
 struct SessionData {
   String cardUid;
+  String aircraft;
+  String article;
+  String memberId;
+  String storedCardHash;
   uint32_t pulseCount = 0;
   float liters = 0.0f;
   uint32_t startedAt = 0;

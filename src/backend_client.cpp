@@ -139,9 +139,9 @@ void BackendClient::flushPendingSessions() {
 }
 
 String BackendClient::serializeSession(const SessionData& session) const {
-  const String aircraft = session.cardUid;
-  const String memberId = session.cardUid;
-  const String article = config_.fuelSort;
+  const String aircraft = session.aircraft;
+  const String memberId = session.memberId;
+  const String article = session.article;
   const String amount = String(session.liters, 3);
   const String date = currentDateTime();
 
@@ -151,6 +151,7 @@ String BackendClient::serializeSession(const SessionData& session) const {
   doc["amount"] = session.liters;
   doc["date"] = date;
   doc["memberid"] = memberId;
+  doc["card_hash"] = session.storedCardHash;
   doc["auth"] = calculateAuth(aircraft, article, amount, date, memberId);
 
   String payload;
