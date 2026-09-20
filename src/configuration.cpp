@@ -53,6 +53,12 @@ bool Configuration::loadJson() {
   if (doc["api_path"].is<const char*>()) {
     values_.apiPath = doc["api_path"].as<const char*>();
   }
+  if (doc["fuelsort"].is<const char*>()) {
+    values_.fuelSort = doc["fuelsort"].as<const char*>();
+  }
+  if (doc["hmac_salt"].is<const char*>()) {
+    values_.hmacSalt = doc["hmac_salt"].as<const char*>();
+  }
   if (doc["api_port"].is<uint16_t>()) {
     values_.apiPort = doc["api_port"].as<uint16_t>();
   }

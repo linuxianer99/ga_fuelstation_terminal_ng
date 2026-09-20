@@ -46,3 +46,15 @@ Der Buzzer soll einen Ton ausgeben, wenn eine gültige NFC Karte erkannt wird.
 Netzwerk:
 Es soll ein LAN Chip W5500 integriert werden. Die IP soll per DHCP bezogen werden.
 Wann das LAN einen Link hat soll das interne WLAN abgeschaltet werden. Hat das LAN keinen Link, soll das WLAN für die Verbindung benutzt werden.
+
+Backend API Call:
+Nach einer erfolgreichen Tankung soll eine JSON Objekt an das Backend geschickt werden. Das JSON Objekt soll folgende Daten enthalten:
+
+{
+    "aircraft": "<Aircraft callsign read from NFC Card>",
+    "article": "<Sort of fuel (this is configured in the fuel station configuration)>",
+    "amount": "<the litres measured during refualing>",
+    "date": "<current date and time of the refueling>",
+    "memberid": "<the id of the person, read from the NFC card">",
+    "auth": "<a hmac hash calcualted of the previous values including a presharded salt>"
+}

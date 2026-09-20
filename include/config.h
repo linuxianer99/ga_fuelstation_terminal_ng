@@ -23,12 +23,16 @@ constexpr char WIFI_SSID[] = "YOUR_WIFI_SSID";
 constexpr char WIFI_PASSWORD[] = "YOUR_WIFI_PASSWORD";
 constexpr char API_HOST[] = "api.example.com";
 constexpr char API_PATH[] = "/api/fuel-session";
+constexpr char FUEL_SORT[] = "JET_A1";
+constexpr char HMAC_SALT[] = "CHANGE_ME";
 
 struct RuntimeConfig {
   String wifiSsid = WIFI_SSID;
   String wifiPassword = WIFI_PASSWORD;
   String apiHost = API_HOST;
   String apiPath = API_PATH;
+  String fuelSort = FUEL_SORT;
+  String hmacSalt = HMAC_SALT;
   uint16_t apiPort = 443;
   bool tlsInsecure = true;
   float pulsesPerLitre = DEFAULT_PULSES_PER_LITRE;

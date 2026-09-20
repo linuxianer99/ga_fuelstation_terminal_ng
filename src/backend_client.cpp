@@ -2,6 +2,8 @@
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>
+#include <mbedtls/md.h>
+#include <time.h>
 
 namespace fuelstation {
 
@@ -31,6 +33,7 @@ bool BackendClient::connectWiFi() {
 #if defined(CONFIG_ETH_ENABLED) && CONFIG_ETH_ENABLED
   if (ETH.linkUp()) {
     WiFi.mode(WIFI_OFF);
+    synchronizeClock();
     Serial.println("LAN-Link aktiv; internes WiFi deaktiviert");
     return true;
   }
@@ -53,7 +56,15 @@ bool BackendClient::connectWiFi() {
 
   Serial.println("WiFi verbunden");
   Serial.println(WiFi.localIP());
+  synchronizeClock();
   return true;
+}
+
+void BackendClient::synchronizeClock() {
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  for (uint8_t attempt = 0; attempt < 20 && time(nullptr) < 1700000000; ++attempt) {
+    delay(250);
+  }
 }
 
 bool BackendClient::sendSession(const SessionData& session) {
@@ -128,17 +139,55 @@ void BackendClient::flushPendingSessions() {
 }
 
 String BackendClient::serializeSession(const SessionData& session) const {
+  const String aircraft = session.cardUid;
+  const String memberId = session.cardUid;
+  const String article = config_.fuelSort;
+  const String amount = String(session.liters, 3);
+  const String date = currentDateTime();
+
   JsonDocument doc;
-  doc["card_uid"] = session.cardUid;
-  doc["pulse_count"] = session.pulseCount;
-  doc["liters"] = session.liters;
-  doc["started_at"] = session.startedAt;
-  doc["ended_at"] = session.endedAt;
-  doc["status"] = "pump_stopped";
+  doc["aircraft"] = aircraft;
+  doc["article"] = article;
+  doc["amount"] = session.liters;
+  doc["date"] = date;
+  doc["memberid"] = memberId;
+  doc["auth"] = calculateAuth(aircraft, article, amount, date, memberId);
 
   String payload;
   serializeJson(doc, payload);
   return payload;
+}
+
+String BackendClient::currentDateTime() const {
+  time_t now = time(nullptr);
+  struct tm utcTime;
+  gmtime_r(&now, &utcTime);
+
+  char formatted[25] = {0};
+  strftime(formatted, sizeof(formatted), "%Y-%m-%dT%H:%M:%SZ", &utcTime);
+  return String(formatted);
+}
+
+String BackendClient::calculateAuth(const String& aircraft,
+                                    const String& article,
+                                    const String& amount,
+                                    const String& date,
+                                    const String& memberId) const {
+  const String canonical = aircraft + "|" + article + "|" + amount + "|" +
+                           date + "|" + memberId;
+  uint8_t digest[32] = {0};
+  const mbedtls_md_info_t* mdInfo = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+  mbedtls_md_hmac(mdInfo,
+                  reinterpret_cast<const unsigned char*>(config_.hmacSalt.c_str()),
+                  config_.hmacSalt.length(),
+                  reinterpret_cast<const unsigned char*>(canonical.c_str()),
+                  canonical.length(), digest);
+
+  char hexDigest[65] = {0};
+  for (uint8_t index = 0; index < sizeof(digest); ++index) {
+    snprintf(hexDigest + index * 2, 3, "%02x", digest[index]);
+  }
+  return String(hexDigest);
 }
 
 String BackendClient::nextQueuePath() const {

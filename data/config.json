@@ -4,6 +4,8 @@
   "api_host": "api.example.com",
   "api_port": 443,
   "api_path": "/api/fuel-session",
+  "fuelsort": "JET_A1",
+  "hmac_salt": "CHANGE_ME",
   "tls_insecure": true,
   "pulse_per_litre": 90,
   "buzzerintensity": 20

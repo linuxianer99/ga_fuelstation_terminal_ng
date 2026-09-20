@@ -20,8 +20,13 @@ class BackendClient {
 
  private:
   bool isNetworkConnected() const;
+  void synchronizeClock();
   bool sendPayload(const String& payload);
   String serializeSession(const SessionData& session) const;
+  String currentDateTime() const;
+  String calculateAuth(const String& aircraft, const String& article,
+                       const String& amount, const String& date,
+                       const String& memberId) const;
   String nextQueuePath() const;
 
   RuntimeConfig config_;
