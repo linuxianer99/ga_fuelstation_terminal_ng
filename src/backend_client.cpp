@@ -8,9 +8,34 @@ namespace fuelstation {
 void BackendClient::begin(const RuntimeConfig& config, bool filesystemReady) {
   config_ = config;
   filesystemReady_ = filesystemReady;
+
+#if defined(CONFIG_ETH_ENABLED) && CONFIG_ETH_ENABLED
+  if (ETH.begin()) {
+    Serial.println("Ethernet initialisiert");
+  } else {
+    Serial.println("Ethernet-Initialisierung fehlgeschlagen");
+  }
+#endif
+}
+
+bool BackendClient::isNetworkConnected() const {
+#if defined(CONFIG_ETH_ENABLED) && CONFIG_ETH_ENABLED
+  if (ETH.linkUp()) {
+    return true;
+  }
+#endif
+  return WiFi.status() == WL_CONNECTED;
 }
 
 bool BackendClient::connectWiFi() {
+#if defined(CONFIG_ETH_ENABLED) && CONFIG_ETH_ENABLED
+  if (ETH.linkUp()) {
+    WiFi.mode(WIFI_OFF);
+    Serial.println("LAN-Link aktiv; internes WiFi deaktiviert");
+    return true;
+  }
+#endif
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(config_.wifiSsid.c_str(), config_.wifiPassword.c_str());
 
@@ -32,7 +57,7 @@ bool BackendClient::connectWiFi() {
 }
 
 bool BackendClient::sendSession(const SessionData& session) {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (!isNetworkConnected()) {
     return false;
   }
 
@@ -64,7 +89,7 @@ bool BackendClient::queueSession(const SessionData& session) {
 }
 
 void BackendClient::flushPendingSessions() {
-  if (!filesystemReady_ || WiFi.status() != WL_CONNECTED) {
+  if (!filesystemReady_ || !isNetworkConnected()) {
     return;
   }
 
@@ -126,7 +151,7 @@ String BackendClient::nextQueuePath() const {
 }
 
 bool BackendClient::sendPayload(const String& payload) {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (!isNetworkConnected()) {
     return false;
   }
 

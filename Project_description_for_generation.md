@@ -42,3 +42,7 @@ BUZZER_FREQ 2000
 BUZZER_LEN 500
 
 Der Buzzer soll einen Ton ausgeben, wenn eine gültige NFC Karte erkannt wird.
+
+Netzwerk:
+Es soll ein LAN Chip W5500 integriert werden. Die IP soll per DHCP bezogen werden.
+Wann das LAN einen Link hat soll das interne WLAN abgeschaltet werden. Hat das LAN keinen Link, soll das WLAN für die Verbindung benutzt werden.
