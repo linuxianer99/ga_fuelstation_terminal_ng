@@ -63,3 +63,20 @@ Webserver:
 Der ESP32 soll einen Webserver zur verfügung stellen in dem eine Statusseite angezeigt wird. Auf dieser Statuseite soll der aktuelle Status stehen, der Name der Station, die Uptime. Außerdem soll die config.json herunterladbar sein und eine aktualisiert version hochladbar sein.
 Der SerialLog der an dem Serialport des ESP32 ausgegeben wird, soll auch auch auf dieser Webseite angezeigt werden. Es soll die Möglichkeit eines Restart geben.
 Weiterhin soll es die Möglichkeit geben, direkt eine neue Firmware hochzuladen, die dann in den ESP32 geschrieben wird.
+
+Pinbelegung:
+| Signal | ESP32-WROOM-32 laut Entwurf | ESP32-S3 mplementierung |
+| --- | ---: | ---: |
+| RFID MOSI | GPIO23 | GPIO11 |
+| I2C SCL | GPIO22 | GPIO9 |
+| I2C SDA | GPIO21 | GPIO8 |
+| RFID MISO | GPIO19 (typischer WROOM-Pin) | GPIO13 |
+| RFID SCK | GPIO18 | GPIO12 |
+| RFID SS/SDA | GPIO5 (Entwurf) | GPIO10 |
+| Durchfluss-Pulse `PUMP_PULSE` | - | GPIO3 |
+| Pumpenrelais `PUMP_RELAIS` | - | GPIO2 |
+| Status-LED `PUMP_LED` | - | GPIO1 |
+| Buzzer | - | GPIO4 |
+
+Status LED:
+Die Status LED soll im IDLE Zustand zwischen hell und dunkel wechseln. Der Wechsel soll langsam passieren (2 Sekunden).

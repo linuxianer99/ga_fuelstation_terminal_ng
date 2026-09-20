@@ -17,29 +17,31 @@ Die Pin-Definitionen stehen in [include/config.h](../include/config.h).
 
 | Funktion | Gerät | ESP32-Pin |
 |---|---|---:|
-| Pumpenrelais | Relais | GPIO 33 |
+| Pumpenrelais | Relais | GPIO 2 |
+| Status-LED | LED/PWM | GPIO 1 |
 | Flow Meter Input | Impulszähler | GPIO 3 |
-| PN532 SCK | NFC | GPIO 36 |
-| PN532 MISO | NFC | GPIO 35 |
-| PN532 MOSI | NFC | GPIO 37 |
-| PN532 SS / CS | NFC | GPIO 7 |
+| PN532 SCK | NFC | GPIO 12 |
+| PN532 MISO | NFC | GPIO 13 |
+| PN532 MOSI | NFC | GPIO 11 |
+| PN532 SS / CS | NFC | GPIO 10 |
 | Buzzer | PWM-Ausgang | GPIO 4 |
-| LCD | I2C | je nach Board-Layout |
+| LCD SDA | I2C | GPIO 8 |
+| LCD SCL | I2C | GPIO 9 |
 
 ## 3. Anschlussliste
 
 ### PN532 NFC-Reader (SPI)
 
-- SCK → GPIO 36
-- MISO → GPIO 35
-- MOSI → GPIO 37
-- SS / CS → GPIO 7
+- SCK → GPIO 12
+- MISO → GPIO 13
+- MOSI → GPIO 11
+- SS / CS → GPIO 10
 - VCC → 3.3V
 - GND → GND
 
 ### Relais für Tankstellenpumpe
 
-- Signal / IN → GPIO 33
+- Signal / IN → GPIO 2
 - VCC / Steuerstrom → je nach Relaismodul
 - GND → GND
 
@@ -54,10 +56,16 @@ Die Pin-Definitionen stehen in [include/config.h](../include/config.h).
 - Signal → GPIO 4
 - GND → GND
 
+### Status-LED
+
+- Anode bzw. Signal → GPIO 1 (mit geeignetem Vorwiderstand)
+- Kathode → GND
+- Im Idle-Zustand wird die LED innerhalb von 2 Sekunden heller und innerhalb weiterer 2 Sekunden dunkler.
+
 ### LCD 16x2 I2C
 
-- SDA → I2C SDA des ESP32
-- SCL → I2C SCL des ESP32
+- SDA → GPIO 8
+- SCL → GPIO 9
 - VCC → je nach Modul 3.3V oder 5V
 - GND → GND
 

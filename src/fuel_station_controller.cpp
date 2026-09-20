@@ -6,6 +6,7 @@ void FuelStationController::begin() {
   display_.begin();
   nfc_.begin();
   relay_.begin(PIN_RELAY);
+  statusLed_.begin();
   configuration_.begin();
   buzzer_.begin(configuration_.values().buzzerIntensity);
   flowMeter_.begin(PIN_FLOW_METER, configuration_.values().pulsesPerLitre);
@@ -29,6 +30,7 @@ const SessionData& FuelStationController::session() const {
 
 void FuelStationController::update() {
   webServer_.update();
+  statusLed_.update(state_);
   String detectedCard;
   if (nfc_.readCardId(detectedCard)) {
     buzzer_.beep();

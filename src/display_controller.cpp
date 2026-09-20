@@ -1,8 +1,11 @@
 #include "display_controller.h"
 
+#include <Wire.h>
+
 namespace fuelstation {
 
 void DisplayController::begin() {
+  Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL);
   lcd_.init();
   lcd_.backlight();
   lcd_.clear();

@@ -8,6 +8,7 @@
 #include "flow_meter.h"
 #include "nfc_reader.h"
 #include "pump_relay.h"
+#include "status_led.h"
 #include "web_server.h"
 
 namespace fuelstation {
@@ -27,6 +28,7 @@ class FuelStationController {
   Buzzer buzzer_;
   NfcReader nfc_;
   PumpRelay relay_;
+  StatusLed statusLed_;
   FlowMeter flowMeter_;
   Configuration configuration_;
   BackendClient backend_;

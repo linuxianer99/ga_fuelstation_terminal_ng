@@ -6,12 +6,13 @@
                      +----------------------------------+
                      |           ESP32-S3               |
                      |                                  |
-                     |  GPIO 33  ────────> Relais      |
+                     |  GPIO 2   ────────> Relais      |
+                     |  GPIO 1   ────────> Status-LED  |
                      |  GPIO 3   ────────> Flow Meter  |
-                     |  GPIO 36  ────────> PN532 SCK   |
-                     |  GPIO 35  ────────> PN532 MISO  |
-                     |  GPIO 37  ────────> PN532 MOSI  |
-                     |  GPIO 7   ────────> PN532 SS    |
+                     |  GPIO 12  ────────> PN532 SCK   |
+                     |  GPIO 13  ────────> PN532 MISO  |
+                     |  GPIO 11  ────────> PN532 MOSI  |
+                     |  GPIO 10  ────────> PN532 SS    |
                      |  GPIO 4   ────────> Buzzer      |
                      |  I2C SDA/SCL ─────> LCD        |
                      |  SPI SCK/MISO/MOSI ─> W5500    |
@@ -45,12 +46,13 @@
 ```text
 ESP32                                    Externe Geräte
 -----------------------------------------------------------------------
-GPIO 33  ------------------------------> Relais / Pump Control
+GPIO 2   ------------------------------> Relais / Pump Control
+GPIO 1   ------------------------------> Status-LED
 GPIO 3   ------------------------------> Flow Meter pulse input
-GPIO 36  ------------------------------> PN532 SCK
-GPIO 35  ------------------------------> PN532 MISO
-GPIO 37  ------------------------------> PN532 MOSI
-GPIO 7   ------------------------------> PN532 SS / CS
+GPIO 12  ------------------------------> PN532 SCK
+GPIO 13  ------------------------------> PN532 MISO
+GPIO 11  ------------------------------> PN532 MOSI
+GPIO 10  ------------------------------> PN532 SS / CS
 GPIO 4   ------------------------------> Buzzer
 I2C SDA/SCL ---------------------------> LCD I2C
 SPI SCK/MISO/MOSI + CS/RST/IRQ -------> W5500 Ethernet (optional)

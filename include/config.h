@@ -4,16 +4,22 @@
 
 namespace fuelstation {
 
-constexpr uint8_t PIN_RELAY = 33;
+constexpr uint8_t PIN_RELAY = 2;
 constexpr uint8_t PIN_FLOW_METER = 3;
-constexpr uint8_t PIN_PN532_SCK = 36;
-constexpr uint8_t PIN_PN532_MISO = 35;
-constexpr uint8_t PIN_PN532_MOSI = 37;
-constexpr uint8_t PIN_PN532_SS = 7;
+constexpr uint8_t PIN_STATUS_LED = 1;
+constexpr uint8_t PIN_PN532_SCK = 12;
+constexpr uint8_t PIN_PN532_MISO = 13;
+constexpr uint8_t PIN_PN532_MOSI = 11;
+constexpr uint8_t PIN_PN532_SS = 10;
+constexpr uint8_t PIN_I2C_SDA = 8;
+constexpr uint8_t PIN_I2C_SCL = 9;
 constexpr uint8_t LCD_ADDRESS = 0x27;
 constexpr float DEFAULT_PULSES_PER_LITRE = 90.0f;
 constexpr uint8_t BUZZER_PIN = 4;
 constexpr uint8_t BUZZER_CHANNEL = 0;
+constexpr uint8_t STATUS_LED_CHANNEL = 1;
+constexpr uint16_t STATUS_LED_FREQ = 5000;
+constexpr uint8_t STATUS_LED_RESOLUTION_BITS = 8;
 constexpr uint16_t BUZZER_FREQ = 2000;
 constexpr uint16_t BUZZER_LEN = 500;
 constexpr uint8_t BUZZER_RESOLUTION_BITS = 8;

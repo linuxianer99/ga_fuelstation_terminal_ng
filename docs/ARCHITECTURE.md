@@ -90,7 +90,7 @@ Controls the acoustic feedback output using the ESP32 LEDC PWM peripheral.
 
 The controller calls `beep()` whenever `NfcReader::readCardId()` successfully detects a card. This applies to both starting and stopping a fueling session.
 
-The requested buzzer pin is currently `4`, which is also configured as `PIN_FLOW_METER`. These signals must use different physical GPIOs in the hardware wiring; otherwise the buzzer and flow-meter interrupt cannot operate reliably at the same time.
+The buzzer uses GPIO `4`, while the flow meter uses GPIO `3`; these signals therefore have separate physical GPIOs.
 
 ### 3.4 `PumpRelay`
 
@@ -180,17 +180,22 @@ File: `include/config.h`
 
 | Function | Constant | Value |
 | --- | --- | ---: |
-| Relay | `PIN_RELAY` | 33 |
-| Flow meter | `PIN_FLOW_METER` | 4 |
-| PN532 SCK | `PIN_PN532_SCK` | 36 |
-| PN532 MISO | `PIN_PN532_MISO` | 35 |
-| PN532 MOSI | `PIN_PN532_MOSI` | 37 |
-| PN532 SS | `PIN_PN532_SS` | 7 |
+| Relay | `PIN_RELAY` | 2 |
+| Status LED | `PIN_STATUS_LED` | 1 |
+| Flow meter | `PIN_FLOW_METER` | 3 |
+| PN532 SCK | `PIN_PN532_SCK` | 12 |
+| PN532 MISO | `PIN_PN532_MISO` | 13 |
+| PN532 MOSI | `PIN_PN532_MOSI` | 11 |
+| PN532 SS | `PIN_PN532_SS` | 10 |
+| I2C SDA | `PIN_I2C_SDA` | 8 |
+| I2C SCL | `PIN_I2C_SCL` | 9 |
 | LCD address | `LCD_ADDRESS` | `0x27` |
 | Pulse conversion | `pulse_per_litre` in `config.json` | `90` |
 | Buzzer | `BUZZER_PIN` | 4 |
 | Buzzer frequency | `BUZZER_FREQ` | 2000 Hz |
 | Buzzer duration | `BUZZER_LEN` | 500 ms |
+
+The status LED is controlled with PWM on its own LEDC channel. While the station is idle, it fades from dark to bright over 2 seconds and back to dark over 2 seconds. During an active fueling session it is switched off.
 
 ### `SessionData`
 
