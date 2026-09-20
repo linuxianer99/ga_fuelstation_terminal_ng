@@ -8,6 +8,7 @@
 #include "flow_meter.h"
 #include "nfc_reader.h"
 #include "pump_relay.h"
+#include "web_server.h"
 
 namespace fuelstation {
 
@@ -15,6 +16,8 @@ class FuelStationController {
  public:
   void begin();
   void update();
+  StationState state() const;
+  const SessionData& session() const;
 
  private:
   void beginSession(const String& cardUid);
@@ -27,6 +30,7 @@ class FuelStationController {
   FlowMeter flowMeter_;
   Configuration configuration_;
   BackendClient backend_;
+  WebServerController webServer_;
   StationState state_ = StationState::Idle;
   SessionData session_;
   uint32_t nextOfflineRetryAt_ = 0;

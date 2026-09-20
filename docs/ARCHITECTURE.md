@@ -14,6 +14,7 @@ The application consists of:
 - `DisplayController` for the 16x2 I2C display
 - `Configuration` for LittleFS mounting and JSON configuration loading
 - `BackendClient` for WiFi and HTTPS/JSON communication
+- `WebServerController` for the authenticated status page, configuration transfer, log display, restart, and OTA update
 
 The Arduino entry point in `src/main.cpp` calls `FuelStationController::begin()` once and `FuelStationController::update()` in a loop.
 
@@ -357,3 +358,14 @@ If `config.json` is missing or invalid, the firmware falls back to the compile-t
 - `API_PATH`
 
 The firmware uses Arduino on top of ESP-IDF and can still include ESP-IDF headers and use ESP-IDF APIs when the required components are available and linked by the Arduino framework.
+
+## 10. Webserver
+
+The HTTP server listens on port 80 after network initialization. The status page is available at `/` and polls `/api/status` for station name, terminal state, liters, uptime, and the recent application log. Administrative routes use HTTP Basic Authentication with `httpuser` and `httppassword` from `config.json`:
+
+- `GET /config.json` downloads the current configuration.
+- `POST /config` accepts a validated `config.json` upload and applies it after restart.
+- `POST /update` writes a firmware `.bin` upload to the inactive OTA partition and restarts after success.
+- `POST /restart` restarts the ESP32.
+
+Configuration and firmware uploads are only accepted after authentication. Firmware updates use the ESP32 `Update` API and are not activated unless the complete image is written successfully.

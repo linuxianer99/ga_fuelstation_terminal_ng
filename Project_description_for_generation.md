@@ -58,3 +58,8 @@ Nach einer erfolgreichen Tankung soll eine JSON Objekt an das Backend geschickt 
     "memberid": "<the id of the person, read from the NFC card">",
     "auth": "<a hmac hash calcualted of the previous values including a presharded salt>"
 }
+
+Webserver:
+Der ESP32 soll einen Webserver zur verfügung stellen in dem eine Statusseite angezeigt wird. Auf dieser Statuseite soll der aktuelle Status stehen, der Name der Station, die Uptime. Außerdem soll die config.json herunterladbar sein und eine aktualisiert version hochladbar sein.
+Der SerialLog der an dem Serialport des ESP32 ausgegeben wird, soll auch auch auf dieser Webseite angezeigt werden. Es soll die Möglichkeit eines Restart geben.
+Weiterhin soll es die Möglichkeit geben, direkt eine neue Firmware hochzuladen, die dann in den ESP32 geschrieben wird.

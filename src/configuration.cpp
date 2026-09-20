@@ -59,6 +59,18 @@ bool Configuration::loadJson() {
   if (doc["hmac_salt"].is<const char*>()) {
     values_.hmacSalt = doc["hmac_salt"].as<const char*>();
   }
+  if (doc["station_name"].is<const char*>()) {
+    values_.stationName = doc["station_name"].as<const char*>();
+  }
+  if (doc["terminal_id"].is<const char*>()) {
+    values_.terminalId = doc["terminal_id"].as<const char*>();
+  }
+  if (doc["httpuser"].is<const char*>()) {
+    values_.httpUser = doc["httpuser"].as<const char*>();
+  }
+  if (doc["httppassword"].is<const char*>()) {
+    values_.httpPassword = doc["httppassword"].as<const char*>();
+  }
   if (doc["api_port"].is<uint16_t>()) {
     values_.apiPort = doc["api_port"].as<uint16_t>();
   }
@@ -74,6 +86,9 @@ bool Configuration::loadJson() {
     if (buzzerIntensity <= 255) {
       values_.buzzerIntensity = static_cast<uint8_t>(buzzerIntensity);
     }
+  }
+  if (doc["heartbeat"].is<uint32_t>()) {
+    values_.heartbeatMs = doc["heartbeat"].as<uint32_t>();
   }
 
   Serial.println("config.json geladen");

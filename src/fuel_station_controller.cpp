@@ -12,12 +12,23 @@ void FuelStationController::begin() {
   backend_.begin(configuration_.values(), configuration_.isFilesystemReady());
   backend_.connectWiFi();
   backend_.flushPendingSessions();
+  webServer_.begin(configuration_.values(), *this);
   state_ = StationState::Idle;
   nextOfflineRetryAt_ = millis() + 30000;
   Serial.println("Fuel Station Controller initialisiert");
+  webServer_.appendLog("Fuel Station Controller initialisiert");
+}
+
+StationState FuelStationController::state() const {
+  return state_;
+}
+
+const SessionData& FuelStationController::session() const {
+  return session_;
 }
 
 void FuelStationController::update() {
+  webServer_.update();
   String detectedCard;
   if (nfc_.readCardId(detectedCard)) {
     buzzer_.beep();
@@ -54,6 +65,7 @@ void FuelStationController::beginSession(const String& cardUid) {
   display_.showAccepted(cardUid);
   delay(1200);
   Serial.println("Pumpe eingeschaltet");
+  webServer_.appendLog("Pumpe eingeschaltet");
 }
 
 void FuelStationController::endSession(const String& cardUid) {
@@ -70,9 +82,11 @@ void FuelStationController::endSession(const String& cardUid) {
   if (!sent) {
     backend_.queueSession(session_);
     Serial.println("Pumpe ausgeschaltet; Session offline gespeichert");
+    webServer_.appendLog("Pumpe ausgeschaltet; Session offline gespeichert");
   } else {
     backend_.flushPendingSessions();
     Serial.println("Pumpe ausgeschaltet und Backend-Request gesendet");
+    webServer_.appendLog("Pumpe ausgeschaltet und Backend-Request gesendet");
   }
   display_.showIdle();
 }

@@ -25,6 +25,10 @@ constexpr char API_HOST[] = "api.example.com";
 constexpr char API_PATH[] = "/api/fuel-session";
 constexpr char FUEL_SORT[] = "JET_A1";
 constexpr char HMAC_SALT[] = "CHANGE_ME";
+constexpr char STATION_NAME[] = "Fuel Station";
+constexpr char TERMINAL_ID[] = "terminal-01";
+constexpr char HTTP_USER[] = "admin";
+constexpr char HTTP_PASSWORD[] = "admin";
 
 struct RuntimeConfig {
   String wifiSsid = WIFI_SSID;
@@ -33,10 +37,15 @@ struct RuntimeConfig {
   String apiPath = API_PATH;
   String fuelSort = FUEL_SORT;
   String hmacSalt = HMAC_SALT;
+  String stationName = STATION_NAME;
+  String terminalId = TERMINAL_ID;
+  String httpUser = HTTP_USER;
+  String httpPassword = HTTP_PASSWORD;
   uint16_t apiPort = 443;
   bool tlsInsecure = true;
   float pulsesPerLitre = DEFAULT_PULSES_PER_LITRE;
   uint8_t buzzerIntensity = DEFAULT_BUZZER_INTENSITY;
+  uint32_t heartbeatMs = 10000;
 };
 
 struct SessionData {
