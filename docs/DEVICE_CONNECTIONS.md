@@ -1,110 +1,54 @@
-# Geräte-Anschlussübersicht am ESP32
+# Geräteanschlüsse
 
-## 1. Überblick
+Die verbindliche, vollständige GPIO- und Modul-Pinliste einschließlich
+Versorgungs- und Sicherheitshinweisen steht in
+[WIRING_OVERVIEW.md](WIRING_OVERVIEW.md).
 
-Dieses Projekt verbindet den ESP32-S3 mit folgenden externen Geräten:
+## Schnellübersicht für den Aufbau
 
-- PN532 NFC-Reader
-- HD44780 / I2C-LCD
-- Impulszähler / Flow Meter
-- Relais für die Pumpe
-- Buzzer
-- optional: W5500 Ethernet-Modul für LAN
+| Gerät / Signal | ESP32-S3 |
+|---|---:|
+| Pumpenrelais `IN` | GPIO 2 |
+| Status-LED-Signal | GPIO 1 |
+| Flow-Meter-Impulssignal | GPIO 3 |
+| Buzzer-Signal | GPIO 4 |
+| LCD-I2C `SDA` | GPIO 8 |
+| LCD-I2C `SCL` | GPIO 9 |
+| PN532 `SS` / `SSEL` / `CS` (SPI) | GPIO 10 |
+| PN532 `MOSI` (SPI) | GPIO 11 |
+| PN532 `SCK` (SPI) | GPIO 12 |
+| PN532 `MISO` (SPI) | GPIO 13 |
 
-Die Pin-Definitionen stehen in [include/config.h](../include/config.h).
+Alle genannten Anschlüsse sind GPIO-Nummern, nicht physische Steckerpositionen.
+PN532 ist in der aktuellen Firmware als SPI-Gerät implementiert. Das LCD wird
+mit I2C-Adresse `0x27` erwartet.
 
-## 2. Aktuell definierte Hardware-Pins
+## W5500 Ethernet
 
-| Funktion | Gerät | ESP32-Pin |
-|---|---|---:|
-| Pumpenrelais | Relais | GPIO 2 |
-| Status-LED | LED/PWM | GPIO 1 |
-| Flow Meter Input | Impulszähler | GPIO 3 |
-| PN532 SCK | NFC | GPIO 12 |
-| PN532 MISO | NFC | GPIO 13 |
-| PN532 MOSI | NFC | GPIO 11 |
-| PN532 SS / CS | NFC | GPIO 10 |
-| Buzzer | PWM-Ausgang | GPIO 4 |
-| LCD SDA | I2C | GPIO 8 |
-| LCD SCL | I2C | GPIO 9 |
+| W5500-Pin | ESP32-S3 |
+|---|---:|
+| `SCK` | GPIO 14 (separater SPI-Bus) |
+| `MISO` / `SO` | GPIO 15 (separater SPI-Bus) |
+| `MOSI` / `SI` | GPIO 16 (separater SPI-Bus) |
+| `CS` / `SCS` | GPIO 5 |
+| `RST` | GPIO 6 |
+| `INT` / `IRQ` | GPIO 7 |
+| `VCC` | 3V3 bzw. Modul-Datenblatt |
+| `GND` | GND |
 
-## 3. Anschlussliste
+GPIO 5–7 und 14–16 müssen auf der konkreten Platine herausgeführt und frei sein.
+Der PN532 bleibt an GPIO 10–13. Die Firmware initialisiert den W5500 über den
+ESP-IDF-SPI-Ethernet-Treiber mit DHCP und verwendet WLAN als Fallback, wenn
+Ethernet nicht verbunden ist. Weitere Details stehen in
+[WIRING_OVERVIEW.md](WIRING_OVERVIEW.md).
 
-### PN532 NFC-Reader (SPI)
+## Hinweise vor dem Einschalten
 
-- SCK → GPIO 12
-- MISO → GPIO 13
-- MOSI → GPIO 11
-- SS / CS → GPIO 10
-- VCC → 3.3V
-- GND → GND
-
-### Relais für Tankstellenpumpe
-
-- Signal / IN → GPIO 2
-- VCC / Steuerstrom → je nach Relaismodul
-- GND → GND
-
-### Impulszähler / Flow Meter
-
-- Signal → GPIO 3
-- GND → GND
-- je nach Sensor auch Versorgung 3.3V oder 5V
-
-### Buzzer
-
-- Signal → GPIO 4
-- GND → GND
-
-### Status-LED
-
-- Anode bzw. Signal → GPIO 1 (mit geeignetem Vorwiderstand)
-- Kathode → GND
-- Im Idle-Zustand wird die LED innerhalb von 2 Sekunden heller und innerhalb weiterer 2 Sekunden dunkler.
-
-### LCD 16x2 I2C
-
-- SDA → GPIO 8
-- SCL → GPIO 9
-- VCC → je nach Modul 3.3V oder 5V
-- GND → GND
-
-### W5500 Ethernet (optional)
-
-Das Projekt beschreibt zusätzlich ein W5500-LAN-Modul mit DHCP-Adresszuweisung.
-
-Eine praxisnahe und gut nutzbare Pinbelegung auf einem separaten SPI-Bus ist:
-
-- SCK → GPIO 12
-- MISO → GPIO 13
-- MOSI → GPIO 11
-- CS → GPIO 10
-- RST → GPIO 9
-- INT / IRQ → GPIO 8
-- VCC → 3.3V
-- GND → GND
-
-Diese Zuordnung vermeidet die bereits belegten PN532- und Buzzer-Pins und lässt die bestehende NFC-Verkabelung unverändert. Der W5500 kann damit auf einem zweiten SPI-Bus oder einem zusätzlichen, freien SPI-Port betrieben werden, ohne die vorhandenen PN532-Pins zu überschreiben.
-
-Hinweis: In der aktuellen Firmware sind die W5500-Pins noch nicht hart codiert; sie müssen je nach Hardware-Layout und der späteren SPI-Initialisierung konfiguriert werden.
-
-## 4. Wichtigste Hinweise
-
-- Das Buzzer-Pin 4 ist laut Beschreibung auch als Flow-Meter-Pin reserviert; in der Praxis müssen diese Signale physisch getrennt sein, damit keine Signalüberlagerung entsteht.
-- Der LAN-Link hat Vorrang: Wenn Ethernet aktiv ist, soll das interne WiFi abgeschaltet werden.
-- Wenn kein Ethernet-Link vorhanden ist, verwendet das System WiFi, um die Session an das Backend zu senden.
-
-## 5. Kurzform im Schaltplanstil
-
-```text
-ESP32-S3
-  ├─ GPIO 33 ──> Relais ──> Pumpe
-  ├─ GPIO 3  ──> Flow Meter / Impulszähler
-  ├─ GPIO 36 ──> PN532 SCK
-  ├─ GPIO 35 ──> PN532 MISO
-  ├─ GPIO 37 ──> PN532 MOSI
-  ├─ GPIO 7  ──> PN532 SS / CS
-  ├─ GPIO 4  ──> Buzzer
-  ├─ I2C SDA/SCL ──> LCD I2C
-  └─ SPI + CS/RST/IRQ ──> W5500 Ethernet (optional)
-```
+- ESP32-S3-GPIOs vertragen keine 5-V-Signale. Pegel von Sensor- und
+  I2C-Modulausgängen prüfen und nötigenfalls Pegelwandler einsetzen.
+- Versorgungsspannungen anhand der Datenblätter der konkreten Module wählen.
+- Das Relais muss mit 3,3-V-Logik steuerbar sein; die Pumpenlast gehört in
+  einen passend abgesicherten und fachgerecht ausgelegten Lastkreis.
+- Die mitgelieferte Flow-Meter-Kalibrierung lautet `pulse_per_litre: 90`.
+  Kalibrierwert zum realen Sensor passend konfigurieren und vor Pumpenbetrieb
+  prüfen.
