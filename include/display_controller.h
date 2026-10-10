@@ -15,7 +15,7 @@ class DisplayController {
   void showPumpStopped();
 
  private:
-  LiquidCrystal_I2C lcd_{LCD_ADDRESS, 16, 2};
+  LiquidCrystal_I2C lcd_{LCD_ADDRESS, 20, 4};
 };
 
 }  // namespace fuelstation
