@@ -1,5 +1,6 @@
 #pragma once
 
+#include <FS.h>
 #include <WebServer.h>
 
 #include "config.h"
